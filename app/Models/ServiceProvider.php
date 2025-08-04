@@ -11,8 +11,10 @@ class ServiceProvider extends Model
         'name',
         'shop_name',
         'thumbnail',
+        'gallery',
         'views',
         'status',
+        'description',
         'category_id',
         'sub_category_id',
         'state_id',
@@ -29,6 +31,7 @@ class ServiceProvider extends Model
         'status' => ServiceProviderStatusEnum::class,
         'start_date' => 'date',
         'end_date' => 'date',
+        'gallery' => 'array',
     ];
 
     public function tags()
@@ -53,6 +56,10 @@ public function state() {
 
 public function city() {
     return $this->belongsTo(City::class);
+}
+
+public function offers() {
+    return $this->hasMany(Offer::class);
 }
 
 

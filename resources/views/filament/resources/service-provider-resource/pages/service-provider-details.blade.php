@@ -12,6 +12,7 @@
                     <p><strong>Name:</strong> {{ $service_provider->name }}</p>
                     <p><strong>Shop Name:</strong> {{ $service_provider->shop_name }}</p>
                     <p><strong>Status:</strong> {{ $service_provider->status }}</p>
+                    <p><strong>Description:</strong> {{ $service_provider->description }}</p>
                     <p><strong>Views:</strong> {{ $service_provider->views }}</p>
 
                     <p><strong>Category:</strong> {{ $service_provider->category->name ?? '-' }}</p>
@@ -35,6 +36,17 @@
                         <div class="text-gray-500">No Thumbnail</div>
                     @endif
                 </div>
+
+                @if (!empty($service_provider->gallery))
+                    <div class="mt-6">
+                        <h2 class="text-lg font-semibold mb-2">Gallery</h2>
+                        <div class="flex flex-wrap gap-4">
+                            @foreach ($service_provider->gallery as $image)
+                                <img src="{{ asset('storage/' . $image) }}" alt="Gallery Image" class="w-32 h-32 object-cover rounded shadow">
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
 
             @if($service_provider->tags->isNotEmpty())
@@ -47,6 +59,19 @@
             @else
                 <p class="text-gray-500">No tags available.</p>
             @endif
+
+            @if($service_provider->offers->isNotEmpty())
+                <strong>Offers</strong>
+                <ul class="list-disc list-inside space-y-1">
+                    @foreach ($service_provider->offers as $offer)
+                        <li>{{ $offer->title }}</li>
+                        <img src="{{ asset('storage/' . $offer->image) }}" width="150" height="150">
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-gray-500">No tags available.</p>
+            @endif
+
         </x-filament::card>
     </div>
 </x-filament-panels::page>

@@ -13,7 +13,7 @@ class City extends Model
         'status',
     ];
 
-    protected $cast = [
+    protected $casts = [
         'status' => CityStatusEnum::class,
     ];
 
@@ -21,5 +21,12 @@ class City extends Model
     {
         return $this->belongsTo(State::class);
     }
+
+    public function scopeActiveByState($query, $stateId)
+{
+    return $query->where('state_id', $stateId)
+                 ->where('status', CityStatusEnum::ACTIVE->value);
+}
+
 
 }

@@ -24,4 +24,10 @@ class Category extends Model
     return $this->hasMany(Subcategory::class);
 }
 
+//scopes
+public function scopeActive($query)
+{
+    return $query->where('status', CategorystatusEnum::ACTIVE);
+}
+
 }

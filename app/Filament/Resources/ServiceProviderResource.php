@@ -25,29 +25,152 @@ class ServiceProviderResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('shop_name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('thumbnail')
-                    ->label('Thumbnail')
-                    ->image()
-                    ->directory('thumbnails')
-                    ->visibility('public')
-                    ->imagePreviewHeight('100')
-                    ->required(),
-                Forms\Components\TextInput::make('views')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->maxLength(255),
-            ]);
+        return $form->schema([
+
+            Forms\Components\Section::make('Basic Information')
+                ->description('Enter the service provider’s basic details.')
+                ->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->label('Provider Name')
+                        ->required()
+                        ->maxLength(255),
+
+                    Forms\Components\TextInput::make('shop_name')
+                        ->label('Shop Name')
+                        ->required()
+                        ->maxLength(255),
+
+                    Forms\Components\Textarea::make('description')
+                        ->label('Description')
+                        ->required()
+                        ->maxLength(1000)
+                        ->autosize(),
+
+                    Forms\Components\FileUpload::make('thumbnail')
+                        ->label('Thumbnail')
+                        ->image()
+                        ->directory('thumbnails')
+                        ->visibility('public')
+                        ->imagePreviewHeight('120'),
+
+                    Forms\Components\FileUpload::make('gallery')
+                        ->label('Gallery')
+                        ->multiple()
+                        ->image()
+                        ->directory('galleries')
+                        ->visibility('public')
+                        ->imagePreviewHeight('100')
+                        ->columnSpanFull(),
+
+
+                ])
+                ->columns(2),
+
+            Forms\Components\Section::make('Category Details')
+                ->description('Assign a category and subcategory.')
+                ->schema([
+                    Forms\Components\Select::make('category_id')
+                        ->label('Category')
+                        ->relationship('category', 'name', fn ($query) => $query->active())
+                        ->required()
+                        ->preload(),
+
+                    Forms\Components\Select::make('sub_category_id')
+                        ->label('Subcategory')
+                        ->options(function (callable $get) {
+                            $categoryId = $get('category_id');
+                            return \App\Models\SubCategory::where('category_id', $categoryId)
+                                ->where('status', 'active')
+                                ->pluck('name', 'id');
+                        })
+                        ->required()
+                        ->searchable()
+                        ->preload(),
+
+                    Forms\Components\Select::make('tags')
+                        ->label('Tags')
+                        ->multiple()
+                        ->relationship('tags', 'name' ,fn ($query) => $query->where('status','active'))
+                        ->required()
+                        ->preload(),
+                ])
+                ->columns(2),
+
+            Forms\Components\Section::make('Location')
+                ->schema([
+                    Forms\Components\Select::make('state_id')
+                        ->label('State')
+                        ->relationship('state', 'name' ,fn ($query) => $query->where('status','active'))
+                        ->required()
+                        ->preload(),
+
+                    Forms\Components\Select::make('city_id')
+                        ->label('City')
+                        ->options(function (callable $get) {
+                            $stateId = $get('state_id');
+                            return \App\Models\City::where('state_id', $stateId)
+                                ->where('status', 'active')
+                                ->pluck('name', 'id');
+                        })
+                        ->required()
+                        ->searchable()
+                        ->preload(),
+                ])
+                ->columns(2),
+
+            Forms\Components\Section::make('Contact Information')
+                ->schema([
+                    Forms\Components\TextInput::make('phone_number')
+                        ->label('Phone Number')
+                        ->required()
+                        ->tel()
+                        ->maxLength(10),
+
+                    Forms\Components\TextInput::make('whatsapp')
+                        ->label('WhatsApp Number')
+                        ->tel()
+                        ->maxLength(10),
+
+                    Forms\Components\TextInput::make('facebook')
+                        ->label('Facebook Page')
+                        ->url()
+                        ->nullable(),
+
+                    Forms\Components\TextInput::make('instagram')
+                        ->label('Instagram Page')
+                        ->url()
+                        ->nullable(),
+                ])
+                ->columns(2),
+
+            Forms\Components\Section::make('Activity Period')
+                ->description('Specify availability period and status.')
+                ->schema([
+                    Forms\Components\DatePicker::make('start_date')
+                        ->label('Start Date')
+                        ->default(now()->toDateString())
+                        ->beforeOrEqual(now())
+                        ->required(),
+
+                    Forms\Components\DatePicker::make('end_date')
+                        ->label('End Date')
+                        ->after(fn (callable $get) => $get('start_date') ?: now())
+                        ->required(),
+
+                    Forms\Components\TextInput::make('status')
+                        ->label('Status')
+                        ->required()
+                        ->default(ServiceProviderStatusEnum::ACTIVE),
+                ])
+                ->columns(3),
+
+            Forms\Components\TextInput::make('views')
+                ->numeric()
+                ->default(0)
+                ->hidden(),
+
+        ]);
+
     }
 
     public static function table(Table $table): Table
@@ -92,7 +215,7 @@ class ServiceProviderResource extends Resource
                 ->label('State')
                 ->options(fn () => State::pluck('name', 'id')->toArray()),
 
-            Tables\Filters\SelectFilter::make('state_id')
+            Tables\Filters\SelectFilter::make('city_id')
                 ->label('City')
                 ->options(fn () => City::pluck('name', 'id')->toArray()),
 

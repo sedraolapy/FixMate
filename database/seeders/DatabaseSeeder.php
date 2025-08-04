@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
             // SubCategorySeeder::class,
             // ServiceProviderSeeder::class,
             // TagSeeder::class,
+            // OfferSeeder::class,
+            // GovernmentEntitySeeder::class,
+            CustomerSeeder::class,
         ]);
 
     }

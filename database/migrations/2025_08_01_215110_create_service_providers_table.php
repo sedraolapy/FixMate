@@ -20,6 +20,10 @@ return new class extends Migration
 
             $table->string('thumbnail')->nullable();
 
+            $table->json('gallery')->nullable();
+
+            $table->string('description');
+
             $table->unsignedInteger('views')->default(0);
 
             $table->foreignId('category_id')

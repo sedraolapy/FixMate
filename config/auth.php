@@ -36,14 +36,19 @@ return [
     */
 
     'guards' => [
-        'user' => [
+        'customer' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'customers',
         ],
 
         'admin' => [
             'driver' => 'session',
             'provider' => 'admins',
+        ],
+
+        'Service_provider' => [
+            'driver' => 'session',
+            'provider' => 'service_providers',
         ],
     ],
 
@@ -65,14 +70,19 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'customers' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => env('AUTH_MODEL', App\Models\Customer::class),
         ],
 
         'admins' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\Admin::class),
+        ],
+
+        'service_providers' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', App\Models\ServiceProvider::class),
         ],
 
         // 'users' => [

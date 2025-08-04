@@ -19,39 +19,98 @@ class ServiceProviderSeeder extends Seeder
     {
         $categories = Category::with('subCategories')->get();
         $states = State::with('cities')->get();
-
         $statuses = ServiceProviderStatusEnum::cases();
 
-        for ($i = 1; $i <= 20; $i++) {
+        if ($categories->isEmpty() || $states->isEmpty()) {
+            $this->command->error('Ensure categories and states with subcategories and cities exist.');
+            return;
+        }
+
+        $serviceProviders = [
+            [
+                'name' => 'Ali Hamdan',
+                'shop_name' => 'Ali Electronics',
+                'description' => 'Expert in home electronics and gadgets.',
+                'phone_number' => '123456789',
+                'whatsapp' => '123456789',
+                'facebook' => 'https://facebook.com/alielectronics',
+                'instagram' => 'https://instagram.com/alielectronics',
+                'start_date' => now()->subMonths(3),
+                'end_date' => now()->addMonths(3),
+                'status' => collect($statuses)->random(),
+                'views' => 150,
+            ],
+            [
+                'name' => 'Samar Saleh',
+                'shop_name' => 'Samar Beauty Salon',
+                'description' => 'Beauty services for all occasions.',
+                'phone_number' => '987654321',
+                'whatsapp' => null,
+                'facebook' => null,
+                'instagram' => 'https://instagram.com/samarbeauty',
+                'start_date' => now()->subMonths(2),
+                'end_date' => now()->addMonths(4),
+                'status' => collect($statuses)->random(),
+                'views' => 90,
+            ],
+            [
+                'name' => 'Omar Khaled',
+                'shop_name' => 'Omar Car Services',
+                'description' => 'Car maintenance and detailing.',
+                'phone_number' => '111222333',
+                'whatsapp' => '111222333',
+                'facebook' => 'https://facebook.com/omarcar',
+                'instagram' => null,
+                'start_date' => now()->subMonths(6),
+                'end_date' => null,
+                'status' => collect($statuses)->random(),
+                'views' => 70,
+            ],
+            [
+                'name' => 'Lina Youssef',
+                'shop_name' => 'Lina Photography',
+                'description' => 'Professional photography services.',
+                'phone_number' => '444555666',
+                'whatsapp' => '444555666',
+                'facebook' => null,
+                'instagram' => 'https://instagram.com/linaphoto',
+                'start_date' => now()->subMonth(),
+                'end_date' => now()->addMonths(2),
+                'status' => collect($statuses)->random(),
+                'views' => 200,
+            ],
+            [
+                'name' => 'Hassan Nader',
+                'shop_name' => 'Hassan Tech Repairs',
+                'description' => 'Fast tech repair services.',
+                'phone_number' => '777888999',
+                'whatsapp' => null,
+                'facebook' => 'https://facebook.com/hassantech',
+                'instagram' => null,
+                'start_date' => now()->subMonths(5),
+                'end_date' => now()->addMonths(1),
+                'status' => collect($statuses)->random(),
+                'views' => 180,
+            ],
+        ];
+
+        foreach ($serviceProviders as $data) {
             $category = $categories->random();
-            if ($category->subCategories->isEmpty()) continue;
-
-            $subCategory = $category->subCategories->random();
-
+            $subCategory = $category->subCategories->first();
             $state = $states->random();
-            if ($state->cities->isEmpty()) continue;
+            $city = $state->cities->first();
 
-            $city = $state->cities->random();
+            if (!$subCategory || !$city) {
+                continue;
+            }
 
-            ServiceProvider::create([
-                'name' => fake()->name(),
-                'shop_name' => fake()->company(),
+            ServiceProvider::create(array_merge($data, [
                 'thumbnail' => null,
-                'views' => rand(10, 500),
                 'category_id' => $category->id,
                 'sub_category_id' => $subCategory->id,
                 'state_id' => $state->id,
                 'city_id' => $city->id,
-                'phone_number' => fake()->phoneNumber(),
-                'whatsapp' => rand(0, 1) ? fake()->e164PhoneNumber() : null,
-                'facebook' => rand(0, 1) ? 'https://facebook.com/' . Str::slug(fake()->company()) : null,
-                'instagram' => rand(0, 1) ? 'https://instagram.com/' . Str::slug(fake()->company()) : null,
-                'start_date' => fake()->dateTimeBetween('-1 year', 'now'),
-                'end_date' => rand(0, 1) ? fake()->dateTimeBetween('now', '+1 year') : null,
-                'status' => collect($statuses)->random(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            ]));
         }
     }
 }

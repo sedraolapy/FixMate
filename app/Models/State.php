@@ -12,7 +12,7 @@ class State extends Model
         'status',
     ];
 
-    protected $cast = [
+    protected $casts = [
         'status' => StateStatusEnum::class,
     ];
 
