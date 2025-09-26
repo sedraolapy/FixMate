@@ -16,22 +16,23 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        // Admin::updateOrCreate([
-        //     'email' => 'admin@gmail.com',
-        //     'password' => Hash::make('admin135'),
-        //     'name' => 'Sedra Alolapy',
-        //     'phone_number' => '0992236800',
-        // ]);
+       $admin= Admin::updateOrCreate([
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('Admin135@@'),
+            'name' => 'Sedra Alolapy',
+            'phone_number' => '0992236800',
+        ]);
+        $admin->assignRole('admin');
 
         $this->call([
-            // StateSeeder::class,
-            // CitySeeder::class,
-            // CategorySeeder::class,
-            // SubCategorySeeder::class,
-            // ServiceProviderSeeder::class,
-            // TagSeeder::class,
-            // OfferSeeder::class,
-            // GovernmentEntitySeeder::class,
+            StateSeeder::class,
+            CitySeeder::class,
+            CategorySeeder::class,
+            SubCategorySeeder::class,
+            ServiceProviderSeeder::class,
+            TagSeeder::class,
+            OfferSeeder::class,
+            GovernmentEntitySeeder::class,
             CustomerSeeder::class,
         ]);
 

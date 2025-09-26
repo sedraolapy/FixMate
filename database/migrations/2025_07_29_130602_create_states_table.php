@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('states', function (Blueprint $table) {
             $table->id();
 
-            $table->string('name')->unique();
+            $table->json('name')->unique()->nullable();
 
             $table->string('status')->default(StateStatusEnum::ACTIVE->value);
 

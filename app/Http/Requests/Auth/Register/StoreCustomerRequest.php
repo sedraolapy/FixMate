@@ -24,7 +24,7 @@ class StoreCustomerRequest extends FormRequest
         return [
             'first_name' =>['required','string','max:100'],
             'last_name' =>['required','string','max:100'],
-            'phone_number' =>['required','string','max:10','unique:customers,phone_number'],
+            'phone_number' =>['required','string','max:10'],
             'state_id' =>['required','exists:states,id'],
             'city_id' =>['required','exists:cities,id'],
             'password' => ['required','min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/', 'confirmed'],
@@ -33,23 +33,24 @@ class StoreCustomerRequest extends FormRequest
     }
 
     public function messages(): array
-{
-    return [
-        'first_name.required' => 'Please enter your first name.',
-        'last_name.required' => 'Please enter your last name.',
-        'phone_number.required' => 'Phone number is required.',
-        'phone_number.max' => 'Phone number cannot be more than 10 digits.',
-        'phone_number.unique' => 'This phone number is already in use.',
-        'state_id.required' => 'Please select a state.',
-        'state_id.exists' => 'Selected state is invalid.',
-        'city_id.required' => 'Please select a city.',
-        'city_id.exists' => 'Selected city is invalid.',
-        'password.required' => 'Password is required.',
-        'password.min' => 'Password must be at least 8 characters.',
-        'password.confirmed' => 'Password confirmation does not match',
-        'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
-        'terms.accepted' => 'You must accept the terms and conditions.',
-    ];
-}
+    {
+        return [
+            'first_name.required' => __('validation.first_name_required'),
+            'last_name.required' => __('validation.last_name_required'),
+            'phone_number.required' => __('validation.phone_required'),
+            'phone_number.max' => __('validation.phone_max'),
+            'phone_number.unique' => __('validation.phone_unique'),
+            'state_id.required' => __('validation.state_required'),
+            'state_id.exists' => __('validation.state_invalid'),
+            'city_id.required' => __('validation.city_required'),
+            'city_id.exists' => __('validation.city_invalid'),
+            'password.required' => __('validation.password_required'),
+            'password.min' => __('validation.password_min'),
+            'password.confirmed' => __('validation.password_confirmed'),
+            'password.regex' => __('validation.password_regex'),
+            'terms.accepted' => __('validation.terms_accepted'),
+        ];
+    }
+
 
 }

@@ -3,10 +3,16 @@
 namespace App\Models;
 
 use App\Enums\StateStatusEnum;
+use App\Models\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Translatable\HasTranslations;
 
 class State extends Model
 {
+    use HasTranslations;
+
+    public $translatable = ['name'];
+
     protected $fillable =[
         'name',
         'status',
@@ -21,4 +27,10 @@ class State extends Model
         return $this->hasMany(City::class);
     }
 
+    protected static function boot()
+{
+    parent::boot();
+
+    self::addGlobalScope(ActiveScope::class);
+}
 }

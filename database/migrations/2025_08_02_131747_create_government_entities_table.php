@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('government_entities', function (Blueprint $table) {
             $table->id();
 
-            $table->string('name');
+            $table->json('name')->nullable();
 
             $table->string('image')->nullable();
 

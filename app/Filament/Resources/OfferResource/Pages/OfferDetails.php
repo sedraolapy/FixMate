@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OfferResource\Pages;
 
 use App\Filament\Resources\OfferResource;
 use App\Models\Offer;
+use App\Models\Scopes\ActiveScope;
 use Filament\Resources\Pages\Page;
 
 class OfferDetails extends Page
@@ -12,7 +13,7 @@ class OfferDetails extends Page
 
     public function mount($record): void
     {
-        $this->offer = Offer::with('ServiceProvider')->findOrFail($record);
+        $this->offer = Offer::withoutGlobalScope(ActiveScope::class)->with('ServiceProvider')->findOrFail($record);
     }
 
     public static function getRoute(): string

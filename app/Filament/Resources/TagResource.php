@@ -6,6 +6,7 @@ use App\Enums\TagStatusEnum;
 use App\Filament\Resources\TagResource\Pages;
 use App\Filament\Resources\TagResource\Pages\TagDetails;
 use App\Filament\Resources\TagResource\RelationManagers;
+use App\Models\Scopes\ActiveScope;
 use App\Models\Tag;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -17,9 +18,15 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TagResource extends Resource
 {
-    protected static ?string $model = Tag::class;
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScope(ActiveScope::class);
+    }
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $model = Tag::class;
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
+
 
     public static function form(Form $form): Form
     {
@@ -28,10 +35,11 @@ class TagResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->maxLength(255)
-                    ->default('active'),
+                Forms\Components\Select::make('status')
+                    ->label('Status')
+                    ->options(TagStatusEnum::asSelectArray())
+                    ->default(TagStatusEnum::ACTIVE->value)
+                    ->required(),
             ]);
     }
 

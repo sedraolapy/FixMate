@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\TagResource\Pages;
 
 use App\Filament\Resources\TagResource;
+use App\Models\Scopes\ActiveScope;
 use App\Models\Tag;
 use Filament\Resources\Pages\Page;
 
@@ -12,7 +13,8 @@ class TagDetails extends Page
 
     public function mount($record): void
     {
-        $this->tag = Tag::with('serviceProviders')->findOrFail($record);
+        $this->tag = Tag::withoutGlobalScope(ActiveScope::class)
+        ->with('serviceProviders')->findOrFail($record);
     }
 
     public static function getRoute(): string

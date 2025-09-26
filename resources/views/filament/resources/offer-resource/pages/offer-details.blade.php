@@ -15,7 +15,7 @@
                         {{ $offer->serviceProvider?->name ?? '-' }}
                     </p>
 
-                    <p><strong>Status:</strong> {{ ucfirst($offer->status) }}</p>
+                    <p><strong>Status:</strong> {{ $offer->status }}</p>
 
                     <p><strong>Start Date:</strong> {{ \Illuminate\Support\Carbon::parse($offer->start_date)->format('Y-m-d') }}</p>
 

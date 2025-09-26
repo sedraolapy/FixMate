@@ -7,6 +7,7 @@ use App\Filament\Resources\SubCategoryResource\Pages;
 use App\Filament\Resources\SubCategoryResource\Pages\SubCategoryDetails;
 use App\Filament\Resources\SubCategoryResource\RelationManagers;
 use App\Models\Category;
+use App\Models\Scopes\ActiveScope;
 use App\Models\SubCategory;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -18,17 +19,32 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SubCategoryResource extends Resource
 {
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScope(ActiveScope::class);
+    }
+
+
     protected static ?string $model = SubCategory::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Group::make([
+                    Forms\Components\TextInput::make('name.en')
+                        ->label('Name (English)')
+                        ->required(),
+
+                    Forms\Components\TextInput::make('name.ar')
+                        ->label('Name (Arabic)')
+                        ->required(),
+                ])
+                ->columns(2),
                 Forms\Components\FileUpload::make('thumbnail')
                 ->label('Thumbnail')
                 ->image()
@@ -36,17 +52,25 @@ class SubCategoryResource extends Resource
                 ->visibility('public')
                 ->imagePreviewHeight('100')
                 ->required(),
-                Forms\Components\TextInput::make('description')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->maxLength(255)
-                    ->default('active'),
+                Forms\Components\Group::make([
+                    Forms\Components\TextInput::make('description.en')
+                        ->label('Description (English)')
+                        ->required(),
+
+                    Forms\Components\TextInput::make('description.ar')
+                        ->label('Description (Arabic)')
+                        ->required(),
+                ])
+                ->columns(2),
+                Forms\Components\Select::make('status')
+                    ->label('Status')
+                    ->options(SubCategoryStatusEnum::asSelectArray())
+                    ->default(SubCategoryStatusEnum::ACTIVE->value)
+                    ->required(),
                 Forms\Components\Select::make('category_id')
                     ->label('Related category')
                     ->relationship('category', 'name')
-                    ->options(Category::where('status', 'active')->pluck('name', 'id'))
+                    ->options(Category::pluck('name', 'id'))
                     ->required()
             ]);
     }
@@ -65,7 +89,10 @@ class SubCategoryResource extends Resource
                 Tables\Columns\TextColumn::make('description'),
                 Tables\Columns\TextColumn::make('status'),
                 Tables\Columns\TextColumn::make('category.name')
-                    ->label('Category'),
+                    ->label('Category')
+                    ->getStateUsing(fn ($record) => $record->category()
+                        ->withoutGlobalScope(ActiveScope::class)
+                        ->first()?->name),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -79,10 +106,10 @@ class SubCategoryResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options(SubCategoryStatusEnum::asSelectArray()),
-                Tables\Filters\SelectFilter::make('category_id')
+                    Tables\Filters\SelectFilter::make('category_id')
                     ->label('Category')
-                    ->relationship('category', 'name')
-                    ->options(fn () => Category::pluck('name', 'id')->toArray()),
+                    ->options(fn () => Category::withoutGlobalScope(ActiveScope::class)->pluck('name', 'id')->toArray()),
+
 
             ])
             ->actions([

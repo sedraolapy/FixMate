@@ -8,6 +8,7 @@ use App\Filament\Resources\OfferResource\Pages;
 use App\Filament\Resources\OfferResource\Pages\OfferDetails;
 use App\Filament\Resources\OfferResource\RelationManagers;
 use App\Models\Offer;
+use App\Models\Scopes\ActiveScope;
 use App\Models\ServiceProvider;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -20,9 +21,17 @@ use Illuminate\Validation\Rule;
 
 class OfferResource extends Resource
 {
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScope(ActiveScope::class);
+    }
+
     protected static ?string $model = Offer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-gift';
+
+
 
     public static function form(Form $form): Form
     {
@@ -40,7 +49,7 @@ class OfferResource extends Resource
                     ->required(),
                 Forms\Components\Select::make('service_provider_id')
                     ->label('Related Service Provider')
-                    ->relationship('serviceProvider', 'name',fn ($query) => $query->where('status',ServiceProviderStatusEnum::ACTIVE->value))
+                    ->relationship('serviceProvider', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
@@ -58,7 +67,7 @@ class OfferResource extends Resource
 
                 Forms\Components\TextInput::make('status')
                     ->required()
-                    ->default(ServiceProviderStatusEnum::ACTIVE),
+                    ->default(OfferStatusEnum::ACTIVE),
             ]);
     }
 

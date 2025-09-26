@@ -7,6 +7,7 @@ use App\Filament\Resources\CategoryResource\Pages;
 use App\Filament\Resources\CategoryResource\Pages\CategoryDetails;
 use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
+use App\Models\Scopes\ActiveScope;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -18,17 +19,31 @@ use Illuminate\Support\Facades\Storage;
 
 class CategoryResource extends Resource
 {
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScope(ActiveScope::class);
+    }
+
     protected static ?string $model = Category::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Group::make([
+                    Forms\Components\TextInput::make('name.en')
+                        ->label('Name (English)')
+                        ->required(),
+
+                    Forms\Components\TextInput::make('name.ar')
+                        ->label('Name (Arabic)')
+                        ->required(),
+                ])
+                ->columns(2),
                 Forms\Components\FileUpload::make('thumbnail')
                     ->label('Thumbnail')
                     ->image()
@@ -36,9 +51,16 @@ class CategoryResource extends Resource
                     ->visibility('public')
                     ->imagePreviewHeight('100')
                     ->required(),
-                Forms\Components\TextInput::make('description')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Group::make([
+                        Forms\Components\TextInput::make('description.en')
+                            ->label('Description (English)')
+                            ->required(),
+
+                        Forms\Components\TextInput::make('description.ar')
+                            ->label('Description (Arabic)')
+                            ->required(),
+                    ])
+                    ->columns(2),
                 Forms\Components\TextInput::make('status')
                     ->required()
                     ->maxLength(255)
@@ -60,11 +82,16 @@ class CategoryResource extends Resource
 
                 Tables\Columns\TextColumn::make('description'),
 
-                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('status')
+                ->label('Status'),
 
                 Tables\Columns\TextColumn::make('subcategories_count')
                     ->label('Total Subcategories')
-                    ->counts('subcategories') ,
+                    ->counts([
+                        'subcategories' => fn ($query) => $query->withoutGlobalScopes([
+                            ActiveScope::class,
+                        ]),
+                    ]),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

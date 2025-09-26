@@ -8,6 +8,7 @@ use App\Filament\Resources\CustomerResource\Pages\CustomerDetails;
 use App\Filament\Resources\CustomerResource\RelationManagers;
 use App\Models\City;
 use App\Models\Customer;
+use App\Models\Scopes\ActiveScope;
 use App\Models\State;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -16,12 +17,20 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class CustomerResource extends Resource
 {
-    protected static ?string $model = Customer::class;
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScope(ActiveScope::class);
+    }
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $model = Customer::class;
+    protected static ?string $navigationIcon = 'heroicon-o-user';
+
 
     public static function form(Form $form): Form
     {
@@ -49,7 +58,7 @@ class CustomerResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('state_id')
                             ->label('State')
-                            ->relationship('state', 'name' ,fn ($query) => $query->where('status','active'))
+                            ->relationship('state', 'name')
                             ->required()
                             ->preload(),
 
@@ -57,8 +66,7 @@ class CustomerResource extends Resource
                             ->label('City')
                             ->options(function (callable $get) {
                                 $stateId = $get('state_id');
-                                return \App\Models\City::where('state_id', $stateId)
-                                    ->where('status', 'active')
+                                return City::where('state_id', $stateId)
                                     ->pluck('name', 'id');
                             })
                             ->required()
@@ -66,10 +74,11 @@ class CustomerResource extends Resource
                             ->preload(),
                     ])
                     ->columns(2),
-                Forms\Components\TextInput::make('status')
+                Forms\Components\Select::make('status')
                     ->label('Status')
-                    ->required()
-                    ->default(CustomerStatusEnum::ACTIVE)
+                    ->options(CustomerStatusEnum::asSelectArray())
+                    ->default(CustomerStatusEnum::ACTIVE->value)
+                    ->required(),
 
             ]);
     }
@@ -132,11 +141,21 @@ class CustomerResource extends Resource
                             : 'heroicon-o-pause'
                     )
                     ->action(function (Customer $record) {
-                        $record->update([
-                            'status' => $record->status === CustomerStatusEnum::SUSPENDED
-                                ? CustomerStatusEnum::ACTIVE
-                                : CustomerStatusEnum::SUSPENDED
-                        ]);
+                        $newStatus = $record->status === CustomerStatusEnum::SUSPENDED
+                            ? CustomerStatusEnum::ACTIVE
+                            : CustomerStatusEnum::SUSPENDED;
+
+                        $record->update(['status' => $newStatus]);
+                        // If user is suspended, terminate all sessions
+                        if ($newStatus === CustomerStatusEnum::SUSPENDED) {
+                            $sessions = DB::table('sessions')->get();
+                            foreach ($sessions as $session) {
+                                $data = unserialize(base64_decode($session->payload));
+                                if (isset($data['customer_id']) && $data['customer_id'] == $record->id) {
+                                    DB::table('sessions')->where('id', $session->id)->delete();
+                                }
+                            }
+                        }
                     }),
 
                 Tables\Actions\Action::make('changeStatus')

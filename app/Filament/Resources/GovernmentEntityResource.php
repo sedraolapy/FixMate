@@ -7,50 +7,64 @@ use App\Filament\Resources\GovernmentEntityResource\Pages;
 use App\Filament\Resources\GovernmentEntityResource\Pages\GovernmentEntityDetails;
 use App\Filament\Resources\GovernmentEntityResource\RelationManagers;
 use App\Models\GovernmentEntity;
+use App\Models\Scopes\ActiveScope;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class GovernmentEntityResource extends Resource
 {
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScope(ActiveScope::class);
+    }
+
     protected static ?string $model = GovernmentEntity::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                    Forms\Components\FileUpload::make('image')
+                Forms\Components\Group::make([
+                    Forms\Components\TextInput::make('name.en')
+                        ->label('Name (English)')
+                        ->required(),
+
+                    Forms\Components\TextInput::make('name.ar')
+                        ->label('Name (Arabic)')
+                        ->required(),
+                ])
+                ->columns(2),
+
+                Forms\Components\FileUpload::make('image')
                     ->label('image')
                     ->image()
                     ->directory('images')
                     ->visibility('public')
                     ->imagePreviewHeight('100'),
 
-                Forms\Components\Repeater::make('phone_numbers')
+                Repeater::make('phone_numbers')
                     ->label('Phone Numbers')
                     ->schema([
-                        Forms\Components\TextInput::make('number')
+                        TextInput::make('number')
                             ->label('Phone Number')
-                            ->tel()
-                            ->required()
-                            ->maxLength(10)
-                            ->placeholder('Enter phone number'),
+                            ->required(),
                     ])
-                    ->minItems(1)
+                    ->addActionLabel('Add another number')
                     ->columns(1)
-                    ->required()
-                    ->default([['number' => '']])
-                    ->collapsible()
-                    ->createItemButtonLabel('Add Phone Number'),
+                    ->reorderable(),
+
 
                 Forms\Components\TextInput::make('facebook')
                     ->url()
@@ -58,9 +72,11 @@ class GovernmentEntityResource extends Resource
                 Forms\Components\TextInput::make('instagram')
                     ->url()
                     ->nullable(),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->default(GovernmentEntityStatusEnum::ACTIVE),
+                Forms\Components\Select::make('status')
+                    ->label('Status')
+                    ->options(GovernmentEntityStatusEnum::asSelectArray())
+                    ->default(GovernmentEntityStatusEnum::ACTIVE->value)
+                    ->required(),
             ]);
     }
 
@@ -69,7 +85,10 @@ class GovernmentEntityResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Name')
+                    ->formatStateUsing(fn ($state) => is_array($state) ? $state[app()->getLocale()] ?? $state['en'] : $state)
                     ->searchable(),
+
 
                 Tables\Columns\ImageColumn::make('image')
                     ->label('Image')
@@ -80,9 +99,9 @@ class GovernmentEntityResource extends Resource
                     )
                     ->height(60)
                     ->circular(),
-
-                    Tables\Columns\TextColumn::make('phone_numbers')
-                    ->label('Phone Numbers'),
+                TextColumn::make('phone_numbers')
+                    ->label('Phone Numbers')
+                    ->formatStateUsing(fn ($state) => is_string($state) ? $state : json_encode($state)),
 
                 Tables\Columns\TextColumn::make('status'),
 

@@ -15,27 +15,70 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['name' => 'Home Services', 'description' => 'Maintenance and repair professionals.'],
-            ['name' => 'Education', 'description' => 'Tutors, trainers, and learning support.'],
-            ['name' => 'Beauty & Wellness', 'description' => 'Personal care and wellness experts.'],
-            ['name' => 'Tech Support', 'description' => 'IT, troubleshooting, and setup services.'],
-            ['name' => 'Design & Creative', 'description' => 'Graphics, branding, and visual content.'],
-            ['name' => 'Events', 'description' => 'Planners, decorators, and event support.'],
-            ['name' => 'Automotive', 'description' => 'Car care, mechanics, and detailing.'],
-            ['name' => 'Legal & Finance', 'description' => 'Consultants, advisors, and documentation.'],
-            ['name' => 'Healthcare', 'description' => 'Nurses, therapists, and caregivers.'],
-            ['name' => 'Cleaning Services', 'description' => 'Housekeeping and deep cleaning pros.'],
+            [
+                'name_en' => 'Healthcare',
+                'name_ar' => 'الرعاية الصحية',
+                'description_en' => 'Services related to medical care, wellness, and public health.',
+                'description_ar' => 'الخدمات المتعلقة بالرعاية الطبية والصحة العامة والرفاهية.',
+            ],
+            [
+                'name_en' => 'Education',
+                'name_ar' => 'التعليم',
+                'description_en' => 'Institutions and services focused on learning, teaching, and academic development.',
+                'description_ar' => 'المؤسسات والخدمات التي تركز على التعلم والتعليم والتطوير الأكاديمي.',
+            ],
+            [
+                'name_en' => 'Transportation',
+                'name_ar' => 'النقل',
+                'description_en' => 'Solutions for moving people and goods, including public and private transit.',
+                'description_ar' => 'حلول لنقل الأشخاص والبضائع، بما في ذلك وسائل النقل العامة والخاصة.',
+            ],
+            [
+                'name_en' => 'Finance',
+                'name_ar' => 'المالية',
+                'description_en' => 'Services related to banking, investments, insurance, and financial planning.',
+                'description_ar' => 'الخدمات المتعلقة بالبنوك والاستثمار والتأمين والتخطيط المالي.',
+            ],
+            [
+                'name_en' => 'Legal',
+                'name_ar' => 'القانونية',
+                'description_en' => 'Legal advice, representation, and documentation services.',
+                'description_ar' => 'الخدمات القانونية مثل الاستشارات والتمثيل القانوني وتوثيق المستندات.',
+            ],
+            [
+                'name_en' => 'Housing',
+                'name_ar' => 'السكن',
+                'description_en' => 'Services related to residential properties, rentals, and housing support.',
+                'description_ar' => 'الخدمات المتعلقة بالمساكن والإيجارات والدعم السكني.',
+            ],
+            [
+                'name_en' => 'Business',
+                'name_ar' => 'الأعمال',
+                'description_en' => 'Support for entrepreneurship, commercial services, and corporate solutions.',
+                'description_ar' => 'دعم ريادة الأعمال والخدمات التجارية والحلول المؤسسية.',
+            ],
         ];
 
+
         foreach ($categories as $category) {
-            Category::create([
-                'name' => $category['name'],
-                'description' => $category['description'],
-                'status' => 'active',
-                'created_at' => now(),
-                'updated_at' => now(),
+            $cat = new Category();
+
+            $cat->setTranslations('name', [
+                'en' => $category['name_en'],
+                'ar' => $category['name_ar'],
             ]);
+
+            $cat->setTranslations('description', [
+                'en' => $category['description_en'],
+                'ar' => $category['description_ar'],
+            ]);
+
+            $cat->status = 'active';
+            $cat->created_at = now();
+            $cat->updated_at = now();
+            $cat->save();
         }
+
     }
 
 }

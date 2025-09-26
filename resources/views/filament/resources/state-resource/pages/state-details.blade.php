@@ -13,7 +13,7 @@
                     <span class="{{ $state->status === 'active'
                         ? 'text-green-600 dark:text-green-400'
                         : 'text-red-600 dark:text-red-400' }}">
-                        {{ ucfirst($state->status) }}
+                        {{ $state->status  }}
                     </span>
                 </div>
             </div>

@@ -6,9 +6,12 @@ use App\Enums\ServiceProviderStatusEnum;
 use App\Filament\Resources\ServiceProviderResource\Pages;
 use App\Filament\Resources\ServiceProviderResource\Pages\ServiceProviderDetails;
 use App\Filament\Resources\ServiceProviderResource\RelationManagers;
+use App\Filament\Resources\ServiceProviderResource\RelationManagers\OffersRelationManager;
 use App\Models\City;
+use App\Models\Scopes\ActiveScope;
 use App\Models\ServiceProvider;
 use App\Models\State;
+use App\Models\Tag;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,11 +20,19 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+
+
 class ServiceProviderResource extends Resource
 {
-    protected static ?string $model = ServiceProvider::class;
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScope(ActiveScope::class);
+    }
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $model = ServiceProvider::class;
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+
 
     public static function form(Form $form): Form
     {
@@ -71,7 +82,7 @@ class ServiceProviderResource extends Resource
                 ->schema([
                     Forms\Components\Select::make('category_id')
                         ->label('Category')
-                        ->relationship('category', 'name', fn ($query) => $query->active())
+                        ->relationship('category', 'name')
                         ->required()
                         ->preload(),
 
@@ -156,11 +167,11 @@ class ServiceProviderResource extends Resource
                         ->label('End Date')
                         ->after(fn (callable $get) => $get('start_date') ?: now())
                         ->required(),
-
-                    Forms\Components\TextInput::make('status')
+                    Forms\Components\Select::make('status')
                         ->label('Status')
-                        ->required()
-                        ->default(ServiceProviderStatusEnum::ACTIVE),
+                        ->options(ServiceProviderStatusEnum::asSelectArray())
+                        ->default(ServiceProviderStatusEnum::ACTIVE->value)
+                        ->required(),
                 ])
                 ->columns(3),
 
@@ -221,6 +232,7 @@ class ServiceProviderResource extends Resource
 
             Tables\Filters\MultiSelectFilter::make('tags')
                 ->label('Tags')
+                ->options(fn () => Tag::withoutGlobalScope(ActiveScope::class)->pluck('name', 'id'))
                 ->relationship('tags', 'name'),
 
             Tables\Filters\SelectFilter::make('status')
@@ -245,7 +257,7 @@ class ServiceProviderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            OffersRelationManager::class,
         ];
     }
 

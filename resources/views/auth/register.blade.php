@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FixMate - Register</title>
+  <title>{{ __('blade.FixMate - Register') }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
   <style>
@@ -45,50 +45,56 @@
   <!-- Register Form -->
   <div class="register-container bg-white rounded shadow mt-5 p-4">
 
-    <h2 class="text-center fw-bold mb-4" style="color:#7e22ce;">Create Your Account</h2>
+    <h2 class="text-center fw-bold mb-4" style="color:#7e22ce;">
+      {{ __('blade.Create Your Account') }}
+    </h2>
+
     <form method="POST" action="{{ route('customer.register') }}">
         @csrf
       <div class="mb-3">
-        <label class="form-label" for="firstName">First Name</label>
+        <label class="form-label" for="firstName">{{ __('blade.First Name') }}</label>
         <input type="text" class="form-control" id="firstName"  name="first_name" />
         @error('first_name')
             <div class="text-danger">{{ $message }}</div>
         @enderror
-
       </div>
+
       <div class="mb-3">
-        <label class="form-label" for="lastName">Last Name</label>
+        <label class="form-label" for="lastName">{{ __('blade.Last Name') }}</label>
         <input type="text" class="form-control" id="lastName"  name="last_name" />
         @error('last_name')
             <div class="text-danger">{{ $message }}</div>
         @enderror
       </div>
+
       <div class="mb-3">
-        <label class="form-label" for="phone">Phone Number</label>
+        <label class="form-label" for="phone">{{ __('blade.Phone Number') }}</label>
         <input type="tel" class="form-control" id="phone" name="phone_number"  />
         @error('phone_number')
             <div class="text-danger">{{ $message }}</div>
         @enderror
       </div>
+
       <div class="mb-3">
-        <label class="form-label" for="phone">State</label>
-      <select class="form-select" id="state" name="state_id" >
-        <option selected disabled>Select State</option>
-        @foreach ($states as $state)
-          <option value="{{ $state->id }}">{{ $state->name }}</option>
-        @endforeach
-      </select>
-      @error('state_id')
-        <div class="text-danger">{{ $message }}</div>
-    @enderror
-    </div>
+        <label class="form-label" for="state">{{ __('blade.State') }}</label>
+        <select class="form-select" id="state" name="state_id" >
+          <option selected disabled>{{ __('blade.Select State') }}</option>
+          @foreach ($states as $state)
+            <option value="{{ $state->id }}">{{ $state->name }}</option>
+          @endforeach
+        </select>
+        @error('state_id')
+          <div class="text-danger">{{ $message }}</div>
+        @enderror
+      </div>
+
       <div class="mb-3">
-        <label class="form-label" for="phone">City</label>
+        <label class="form-label" for="city">{{ __('blade.City') }}</label>
         <select class="form-select" id="city" name="city_id" >
-            <option selected disabled>Select City</option>
-          </select>
-          @error('city_id')
-            <div class="text-danger">{{ $message }}</div>
+          <option selected disabled>{{ __('blade.Select City') }}</option>
+        </select>
+        @error('city_id')
+          <div class="text-danger">{{ $message }}</div>
         @enderror
       </div>
 
@@ -99,53 +105,57 @@
             .then(response => response.json())
             .then(data => {
               const citySelect = document.getElementById('city');
-              citySelect.innerHTML = '<option selected disabled>Select City</option>';
+              citySelect.innerHTML = '<option selected disabled>{{ __("blade.Select City") }}</option>';
               data.forEach(city => {
                 citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
               });
             });
         });
-        </script>
+      </script>
 
       <div class="mb-3">
-        <label class="form-label" for="password">Password</label>
+        <label class="form-label" for="password">{{ __('blade.Password') }}</label>
         <input type="password" class="form-control" id="password"  name="password" />
         @error('password')
             <div class="text-danger">{{ $message }}</div>
         @enderror
       </div>
+
       <div class="mb-4">
-        <label class="form-label" for="confirmPassword">Confirm Password</label>
+        <label class="form-label" for="confirmPassword">{{ __('blade.Confirm Password') }}</label>
         <input type="password" class="form-control" id="confirmPassword"  name="password_confirmation"/>
       </div>
+
       <div class="form-check mb-4">
         <input class="form-check-input" type="checkbox" id="terms" name="terms" >
         @error('terms')
             <div class="text-danger">{{ $message }}</div>
         @enderror
         <label class="form-check-label" for="terms">
-          I accept the <a href="#">Terms and Conditions</a>
+          {{ __('blade.I accept the') }} <a href="#">{{ __('blade.Terms and Conditions') }}</a>
         </label>
       </div>
 
       <div class="d-grid">
-        <button type="submit" class="btn btn-custom-purple btn-lg rounded-pill">Register</button>
+        <button type="submit" class="btn btn-custom-purple btn-lg rounded-pill">
+          {{ __('blade.Register') }}
+        </button>
       </div><br>
+
       <div class="text-center">
         <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
-          <i class="bi bi-arrow-left-circle"></i> Back to Sign In
+          <i class="bi bi-arrow-left-circle"></i> {{ __('blade.Back to Sign In') }}
         </a>
       </div>
 
     </form>
-
   </div>
-
-
 
   <!-- Footer -->
   <footer class="bg-white text-center py-4 mt-5">
-    <p class="mb-0" style="color:#7e22ce;">&copy; 2025 FixMate. All rights reserved.</p>
+    <p class="mb-0" style="color:#7e22ce;">
+      &copy; 2025 FixMate. {{ __('blade.All rights reserved.') }}
+    </p>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

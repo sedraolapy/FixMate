@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\TagStatusEnum;
+use App\Models\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Model;
 
 class Tag extends Model
@@ -20,6 +21,14 @@ class Tag extends Model
     {
         return $this->belongsToMany(ServiceProvider::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        self::addGlobalScope(ActiveScope::class);
+    }
+
 
 
 }

@@ -25,6 +25,7 @@
             @if($category->subcategories->count())
                 <ul class="divide-y divide-gray-200 dark:divide-gray-700">
                     @foreach($category->subcategories as $sub)
+
                         <li class="py-3 flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <span class="text-sm text-gray-800 dark:text-gray-100 font-medium">{{ $sub->name }}</span>

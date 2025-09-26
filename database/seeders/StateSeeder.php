@@ -15,18 +15,33 @@ class StateSeeder extends Seeder
     public function run(): void
     {
         $states = [
-            'Damascus',
-            'Aleppo',
-            'Homs',
-            'Latakia',
-            'Hama',
+            [
+                'name_en' => 'Syria',
+                'name_ar' => 'سوريا',
+            ],
+            [
+                'name_en' => 'Lebanon',
+                'name_ar' => 'لبنان',
+            ],
+            [
+                'name_en' => 'United Arab Emirates',
+                'name_ar' => 'الإمارات العربية المتحدة',
+            ],
         ];
+        foreach ($states as $stateData) {
+            $translations = [
+                'en' => $stateData['name_en'],
+                'ar' => $stateData['name_ar'],
+            ];
 
-        foreach ($states as $name) {
-            State::updateOrCreate([
-                'name' => $name,
-                'status' => StateStatusEnum::ACTIVE->value
+            $state = State::firstOrNew([
+                'name->en' => $translations['en'],
             ]);
+
+            $state->setTranslations('name', $translations);
+            $state->status = StateStatusEnum::ACTIVE->value;
+            $state->save();
         }
+
     }
 }

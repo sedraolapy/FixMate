@@ -4,6 +4,7 @@ namespace App\Filament\Resources\CustomerResource\Pages;
 
 use App\Filament\Resources\CustomerResource;
 use App\Models\Customer;
+use App\Models\Scopes\ActiveScope;
 use Filament\Resources\Pages\Page;
 
 class CustomerDetails extends Page
@@ -12,7 +13,8 @@ class CustomerDetails extends Page
 
     public function mount($record): void
     {
-        $this->customer = Customer::findOrFail($record);
+        $this->customer = Customer::withoutGlobalScope(ActiveScope::class)
+        ->findOrFail($record);
     }
 
     public static function getRoute(): string

@@ -21,7 +21,9 @@ return new class extends Migration
             $table->string('phone_number')->unique();
 
             $table->string('password');
-            
+
+            $table->string('avatar_url')->nullable();
+
             $table->timestamps();
         });
     }

@@ -7,6 +7,7 @@ use App\Filament\Resources\StateResource\Pages;
 use App\Filament\Resources\StateResource\Pages\StateDetails;
 use App\Filament\Resources\StateResource\RelationManagers;
 use App\Filament\Resources\StateResource\RelationManagers\CitiesRelationManager;
+use App\Models\Scopes\ActiveScope;
 use App\Models\State;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -21,17 +22,33 @@ class StateResource extends Resource
 {
     protected static ?string $model = State::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScope(ActiveScope::class);
+    }
+
+    protected static ?string $navigationIcon = 'heroicon-o-map';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('status')
-                    ->default('active'),
+                Forms\Components\Group::make([
+                    Forms\Components\TextInput::make('name.en')
+                        ->label('Name (English)')
+                        ->required(),
+
+                    Forms\Components\TextInput::make('name.ar')
+                        ->label('Name (Arabic)')
+                        ->required(),
+                ])
+                ->columns(2),
+                Forms\Components\Select::make('status')
+                    ->label('Status')
+                    ->options(StateStatusEnum::asSelectArray())
+                    ->default(StateStatusEnum::ACTIVE->value)
+                    ->required(),
             ]);
     }
 
@@ -65,10 +82,10 @@ class StateResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('view')
-                    ->label('View')
-                    ->icon('heroicon-o-eye')
-                    ->url(fn ($record) => StateDetails::getUrl(['record' => $record]))
-                    ->openUrlInNewTab(false),
+                ->label('View')
+                ->icon('heroicon-o-eye')
+                ->url(fn ($record) => StateResource::getUrl('details', ['record' => $record]))
+                ->openUrlInNewTab(false),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

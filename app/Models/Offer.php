@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\OfferStatusEnum;
+use App\Models\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Model;
 
 class Offer extends Model
@@ -26,5 +27,12 @@ class Offer extends Model
     {
         return $this->belongsTo(ServiceProvider::class);
     }
+
+    protected static function boot()
+{
+    parent::boot();
+
+    self::addGlobalScope(ActiveScope::class);
+}
 
 }
